@@ -1,13 +1,15 @@
 import requests
-
-def get_posts():
-    url = 'https://jsonplaceholder.typicode.com/posts'
+region = "Europe"
+def get_region(region):
+    url = f'https://api.deadlock-api.com/v1/leaderboard/{region}'
 
     try:
         response = requests.get(url)
 
         if response.status_code == 200:
+            print('Successfully fetched posts from API.')
             posts = response.json()
+            
             return posts
         else:
             print('Error:', response.status_code)
@@ -17,11 +19,12 @@ def get_posts():
         return None
 
 def main():
-    posts = get_posts()
+    posts = get_region(region)
 
     if posts:
-        print('First Post Title:', posts[0]['title'])
-        print('First Post Body:', posts[0]['body'])
+        for entry in posts['entries']:
+         print(entry['account_name'])
+        
     else:
         print('Failed to fetch posts from API.')
 
