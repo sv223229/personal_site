@@ -1,5 +1,11 @@
 import requests
+from flask import Flask
 region = "Europe"
+
+app = Flask(__name__)
+
+@app.route('/leaderboard/<region>', methods=['GET'])
+
 def get_region(region):
     url = f'https://api.deadlock-api.com/v1/leaderboard/{region}'
 
