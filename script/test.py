@@ -1,12 +1,13 @@
 import requests
-from flask import Flask
-region = "Europe"
+from flask import Flask, render_template
+import os
 
-app = Flask(__name__)
+region = "NAmerica"
+template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
 
-@app.route('/leaderboard/<region>', methods=['GET'])
+app = Flask(__name__, template_folder=template_dir)
 
-def get_region(region):
+def fetch_leaderboard(region):
     url = f'https://api.deadlock-api.com/v1/leaderboard/{region}'
 
     try:
@@ -15,7 +16,6 @@ def get_region(region):
         if response.status_code == 200:
             print('Successfully fetched posts from API.')
             posts = response.json()
-            
             return posts
         else:
             print('Error:', response.status_code)
@@ -24,15 +24,20 @@ def get_region(region):
         print('Error:', e)
         return None
 
-def main():
-    posts = get_region(region)
 
+@app.route('/', methods=['GET'])
+def home():
+    posts = fetch_leaderboard(region)
     if posts:
-        for entry in posts['entries']:
-         print(entry['account_name'])
-        
+        print(type(posts))
+        return render_template('leaderboard.html', leader_board=posts['entries'])
     else:
-        print('Failed to fetch posts from API.')
+        return 'Failed to fetch posts from API.'
+
+@app.route('/index', methods=['GET'])
+@app.route('/index.html', methods=['GET'])
+def index():
+    return render_template('index.html')
 
 if __name__ == '__main__':
-    main()
+    app.run(debug=True)
