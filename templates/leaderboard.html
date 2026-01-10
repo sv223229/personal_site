@@ -86,7 +86,8 @@
                 <tr>
                     <td class="rank">{{ loop.index }}</td>
                     <td class="player-name">{{ entry.account_name }}</td>
-                    <td class="mmr">{{ entry.ranked_subrank }}</td>
+                    <td class="mmr">{{entry.ranked_rank }}</td>
+                   
                 </tr>
                 {% endfor %}
             </tbody>
@@ -97,5 +98,15 @@
         </p>
         {% endif %}
     </div>
+<script> 
+ window.onload = function replaceNumber(){
+            let mmrElements = document.getElementsByClassName('mmr');
+            for(let i=0; i<mmrElements.length; i++){
+                 mmrElements[i].innerText = mmrElements[i].innerText.replace('11', 'Eternus');
+                 mmrElements[i].innerText = mmrElements[i].innerText.replace('10', 'Ascendant');
+                 
+            }
+        } </script>
 </body>
+ 
 </html>

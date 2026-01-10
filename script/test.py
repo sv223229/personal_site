@@ -29,7 +29,6 @@ def fetch_leaderboard(region):
 def home():
     posts = fetch_leaderboard(region)
     if posts:
-        print(type(posts))
         return render_template('leaderboard.html', leader_board=posts['entries'])
     else:
         return 'Failed to fetch posts from API.'
