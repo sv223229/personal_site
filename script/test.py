@@ -18,7 +18,7 @@ def fetch_leaderboard(region):
             posts = response.json()
             return posts
         else:
-            print('Error:', response.status_code)
+            print('Error: failed to fetch posts from API, response status code:', response.status_code)
             return None
     except requests.exceptions.RequestException as e:
         print('Error:', e)
