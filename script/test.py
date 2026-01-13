@@ -4,8 +4,9 @@ import os
 
 region = "NAmerica"
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
+static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
 
-app = Flask(__name__, template_folder=template_dir)
+app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
 def fetch_leaderboard(region):
     url = f'https://api.deadlock-api.com/v1/leaderboard/{region}'
