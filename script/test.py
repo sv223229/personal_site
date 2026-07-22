@@ -1,7 +1,12 @@
+from unittest import result
+
 import requests
 from flask import Flask, render_template
 import os
+from dotenv import load_dotenv
+load_dotenv("../.env")  # looks for a .env file in the current directory
 
+steamid = os.getenv("STEAM_ID")
 region = "NAmerica"
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
 static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
@@ -41,3 +46,22 @@ def index():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+def fetch_account(steamid):
+    url = f'https://api.deadlock-api.com/v1/players/steam-search/{steamid}'
+
+    try:
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            print('Successfully fetched posts from API.')
+            posts = response.json()
+            return posts
+        else:
+            print('Error: failed to fetch posts from API, response status code:', response.status_code)
+            return None
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+        return None
+result = fetch_account("76561198012345678")
+print("Test 1 result:", result)
