@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/CSS/leaderboard.css" rel="stylesheet">
+    <title>Account Search - Deadlock</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Account Search Results</h1>
+
+        {% if account_history and account_history|length > 0 %}
+        <table>
+            <thead>
+                <tr>
+                    <th width="20%">match ID</th>
+                    <th width="50%">duration in seconds</th>
+                    <th width="30%">net worth</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in account_history %}
+                <tr>
+                    <td class="rank">{{ entry.match_id }}</td>
+                    <td class="player-name">{{ entry.match_duration_s }}</td>
+                    <td class="mmr">{{ entry.net_worth }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color: white; text-align: center; font-size: 1.2em;">
+            No accounts found.
+        </p>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -63,11 +63,40 @@ def account():
     if not steamid:
         return 'Steam ID is required.'
     posts = fetch_account(steamid)
-    print("Fetched account data:", posts)
+    # print("Fetched account data:", posts)
     if posts:
         return render_template('steam.html', accounts=posts)
     else:
         return 'Failed to fetch account from API.'
 
+def fetch_match_history(steamid):
+    url = f'https://api.deadlock-api.com/v1/players/{steamid}/match-history'
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            print('Successfully fetched posts from API.')
+            return response.json()
+        else:
+            print('Error: failed to fetch posts from API, response status code:', response.status_code)
+            return None
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+        return None
+
+@app.route('/test', methods=['GET'])
+@app.route('/test.html', methods=['GET'])
+def account_history():
+    # Assuming you want to fetch a specific account based on a query parameter or session
+    steamid = os.getenv("STEAM_ID")  # You can replace this with a dynamic value if needed
+    if not steamid:
+        return 'Steam ID is required.'
+    posts = fetch_match_history(steamid)
+    # print("Fetched match history data:", posts)
+    if posts:
+        return render_template('test.html', account_history=posts)
+    else:
+        return 'Failed to fetch account from API.'
+
+    
 if __name__ == '__main__':
     app.run(debug=True)
