@@ -10,21 +10,25 @@
     <div class="container">
         <h1>Account Search Results</h1>
 
-        {% if account_history and account_history|length > 0 %}
+        {% if match_history and match_history|length > 0 %}
         <table>
             <thead>
                 <tr>
-                    <th width="20%">match ID</th>
-                    <th width="50%">duration in seconds</th>
-                    <th width="30%">net worth</th>
+                    <th width="20%">Match Result</th>
+                    <th width="20%">Match ID</th>
+                    <th width="20%">Duration</th>
+                    <th width="20%">Net Worth</th>
+                    <th width="20%">Net Worth/Min</th>
                 </tr>
             </thead>
             <tbody>
-                {% for entry in account_history %}
+                {% for entry in match_history %}
                 <tr>
-                    <td class="rank">{{ entry.match_id }}</td>
-                    <td class="player-name">{{ entry.match_duration_s }}</td>
-                    <td class="mmr">{{ entry.net_worth }}</td>
+                    <td class="match-result">{{ entry.match_result }}</td>
+                    <td class="match-ID">{{ entry.match_id }}</td>
+                    <td class="match-duration">{{ entry.match_duration_min }}m {{ entry.match_duration_sec }}s</td>
+                    <td class="net-worth">{{ entry.net_worth }}</td>
+                    <td class="net-worth-per-min">{{ entry.net_worth_per_min }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

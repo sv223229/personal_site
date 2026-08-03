@@ -83,19 +83,41 @@ def fetch_match_history(steamid):
         print('Error:', e)
         return None
 
+def format_duration(entry):
+    minutes, seconds = divmod(entry['match_duration_s'], 60)
+    entry['match_duration_min'] = minutes
+    entry['match_duration_sec'] = seconds
+    return entry
+
+def calculate_net_worth_per_min(entry):
+    total_minutes = entry['match_duration_s'] / 60
+    entry['net_worth_per_min'] = round(entry['net_worth'] / total_minutes, 1) if total_minutes > 0 else 0
+    return entry
+
+def label_match_result(entry):
+    entry['match_result'] = 'Win' if entry.get('match_result') == 1 else 'Defeat'
+    return entry
+
 @app.route('/test', methods=['GET'])
 @app.route('/test.html', methods=['GET'])
-def account_history():
-    # Assuming you want to fetch a specific account based on a query parameter or session
-    steamid = os.getenv("STEAM_ID")  # You can replace this with a dynamic value if needed
+def match_history():
+    steamid = os.getenv("STEAM_ID")
     if not steamid:
         return 'Steam ID is required.'
+
     posts = fetch_match_history(steamid)
-    # print("Fetched match history data:", posts)
-    if posts:
-        return render_template('test.html', account_history=posts)
-    else:
+    if not posts:
         return 'Failed to fetch account from API.'
+
+    
+
+    for entry in posts:
+        format_duration(entry)
+        calculate_net_worth_per_min(entry)
+        label_match_result(entry)
+
+    return render_template('test.html', match_history=posts)
+
 
     
 if __name__ == '__main__':
