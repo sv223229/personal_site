@@ -2,9 +2,10 @@ import requests
 from flask import Flask, render_template
 import os
 from dotenv import load_dotenv
+from flask import request
 env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'steam.env'))
 load_dotenv(env_path)
-steamid = os.getenv("STEAM_ID")
+# steamid = os.getenv("STEAM_ID")
 print("Loaded STEAM_ID:", os.getenv("STEAM_ID"))
 
 region = "NAmerica"
@@ -40,6 +41,24 @@ def fetch_account(steamid):
     except requests.exceptions.RequestException as e:
         print('Error:', e)
         return None
+
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'POST':
+        steamid = request.form.get('steamid')
+
+        if not steamid or not steamid.isdigit():
+            return 'Please enter a valid numeric Steam ID.'
+
+        posts = fetch_account(steamid)
+        if posts:
+            return render_template('test.html', accounts=posts)
+        else:
+            return 'Failed to fetch account from API.'
+
+    # GET request — just show the empty search form
+    return render_template('form.html')
 
 @app.route('/leaderboard', methods=['GET'])
 @app.route('/leaderboard.html', methods=['GET'])
@@ -95,7 +114,7 @@ def calculate_net_worth_per_min(entry):
     return entry
 
 def label_match_result(entry):
-    entry['match_result'] = 'Win' if entry.get('match_result') == 1 else 'Defeat'
+    entry['match_result'] = 'Win' if entry.get('match_result') == 1 else 'Loss'
     return entry
 
 @app.route('/test', methods=['GET'])
