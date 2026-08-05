@@ -1,18 +1,18 @@
 import requests
-from flask import Flask, render_template
 import os
+from flask import Flask, redirect, render_template
+from flask import Flask, render_template, request, session
 from dotenv import load_dotenv
-from flask import request
+template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
+static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
+app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'steam.env'))
 load_dotenv(env_path)
 # steamid = os.getenv("STEAM_ID")
-print("Loaded STEAM_ID:", os.getenv("STEAM_ID"))
+app.secret_key = os.getenv("SECRET_KEY")
 
 region = "NAmerica"
-template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
-static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
 
-app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
 def fetch_leaderboard(region):
     url = f'https://api.deadlock-api.com/v1/leaderboard/{region}'
@@ -51,13 +51,9 @@ def search():
         if not steamid or not steamid.isdigit():
             return 'Please enter a valid numeric Steam ID.'
 
-        posts = fetch_account(steamid)
-        if posts:
-            return render_template('test.html', accounts=posts)
-        else:
-            return 'Failed to fetch account from API.'
+        session['steamid'] = steamid  # save it for other routes to use
+        return redirect(('test'))  # send them to match history
 
-    # GET request — just show the empty search form
     return render_template('form.html')
 
 @app.route('/leaderboard', methods=['GET'])
@@ -77,12 +73,10 @@ def index():
 @app.route('/steam', methods=['GET'])
 @app.route('/steam.html', methods=['GET'])
 def account():
-    # Assuming you want to fetch a specific account based on a query parameter or session
-    steamid = os.getenv("STEAM_ID")  # You can replace this with a dynamic value if needed
+    steamid = session.get('steamid')
     if not steamid:
         return 'Steam ID is required.'
     posts = fetch_account(steamid)
-    # print("Fetched account data:", posts)
     if posts:
         return render_template('steam.html', accounts=posts)
     else:
@@ -114,21 +108,21 @@ def calculate_net_worth_per_min(entry):
     return entry
 
 def label_match_result(entry):
-    entry['match_result'] = 'Win' if entry.get('match_result') == 1 else 'Loss'
+    entry['match_result'] = 'Win' if entry.get('match_result') == 0 else 'Loss'
     return entry
 
 @app.route('/test', methods=['GET'])
 @app.route('/test.html', methods=['GET'])
 def match_history():
-    steamid = os.getenv("STEAM_ID")
+    steamid = session.get('steamid')
     if not steamid:
         return 'Steam ID is required.'
+
+    print("Loaded STEAM_ID:", steamid)
 
     posts = fetch_match_history(steamid)
     if not posts:
         return 'Failed to fetch account from API.'
-
-    
 
     for entry in posts:
         format_duration(entry)
@@ -136,7 +130,6 @@ def match_history():
         label_match_result(entry)
 
     return render_template('test.html', match_history=posts)
-
 
     
 if __name__ == '__main__':
