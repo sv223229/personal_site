@@ -1,8 +1,10 @@
 import requests
 import os
+import re
 from flask import Flask, redirect, render_template
 from flask import Flask, render_template, request, session
 from dotenv import load_dotenv
+
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
 static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
@@ -46,18 +48,24 @@ def fetch_account(steamid):
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if request.method == 'POST':
-        steamid = request.form.get('steamid')
+        raw_input = request.form.get('steamid')
 
-        if not steamid or not steamid.isdigit():
+        if not raw_input:
+            return 'Please enter a Steam ID or profile URL.'
+
+        numbers = re.findall(r'\d+', raw_input)
+
+        if not numbers:
             return 'Please enter a valid numeric Steam ID.'
 
-        session['steamid'] = steamid  # save it for other routes to use
+        steamid = numbers[0]  # take the first number sequence found
+
+        session['steamid'] = steamid
         return redirect(('test'))  # send them to match history
 
     return render_template('form.html')
 
 @app.route('/leaderboard', methods=['GET'])
-@app.route('/leaderboard.html', methods=['GET'])
 def home():
     posts = fetch_leaderboard(region)
     if posts:
@@ -66,12 +74,12 @@ def home():
         return 'Failed to fetch posts from API.'
 
 @app.route('/index', methods=['GET'])
-@app.route('/index.html', methods=['GET'])
+
 def index():
     return render_template('index.html')
 
 @app.route('/steam', methods=['GET'])
-@app.route('/steam.html', methods=['GET'])
+
 def account():
     steamid = session.get('steamid')
     if not steamid:
@@ -112,7 +120,6 @@ def label_match_result(entry):
     return entry
 
 @app.route('/test', methods=['GET'])
-@app.route('/test.html', methods=['GET'])
 def match_history():
     steamid = session.get('steamid')
     if not steamid:
@@ -122,6 +129,7 @@ def match_history():
 
     posts = fetch_match_history(steamid)
     if not posts:
+        print(steamid)
         return 'Failed to fetch account from API.'
 
     for entry in posts:

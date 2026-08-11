@@ -11,12 +11,11 @@
         <h1>Search Account</h1>
         <form method="POST" action="/search">
             <input
-                type="text"
-                name="steamid"
-                pattern="[0-9]*"
-                inputmode="numeric"
-                placeholder="Enter Steam ID"
-                required
+            type="text"
+            name="steamid"
+            placeholder="Enter Steam ID or profile URL"
+            title="Enter your numeric Steam ID or your full Steam profile URL"
+            required
             >
             <button type="submit">Search</button>
         </form>
