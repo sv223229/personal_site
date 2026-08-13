@@ -96,7 +96,9 @@ def fetch_match_history(steamid):
         response = requests.get(url)
         if response.status_code == 200:
             print('Successfully fetched posts from API.')
-            return response.json()
+            data = response.json()
+            filtered_output = [item for item in data if item['match_mode'] == 4]
+            return filtered_output
         else:
             print('Error: failed to fetch posts from API, response status code:', response.status_code)
             return None
@@ -115,8 +117,20 @@ def calculate_net_worth_per_min(entry):
     entry['net_worth_per_min'] = round(entry['net_worth'] / total_minutes, 1) if total_minutes > 0 else 0
     return entry
 
+def calculate_win_loss_ratio(entry):
+    wins = sum(1 for entry in entry if entry.get('player_match_outcome') == 'Win')
+    losses = sum(1 for entry in entry if entry.get('player_match_outcome') == 'Loss')
+    total_matches = wins + losses
+
+    return {
+        'wins': wins,
+        'losses': losses,
+        'win_loss_ratio': round((wins / total_matches)*100, 2) if total_matches > 0 else 0
+    }
+
+
 def label_match_result(entry):
-    entry['match_result'] = 'Win' if entry.get('match_result') == 0 else 'Loss'
+    entry['player_match_outcome'] = 'Win' if entry.get('player_match_outcome') == 1 else 'Loss'
     return entry
 
 @app.route('/test', methods=['GET'])
@@ -137,7 +151,9 @@ def match_history():
         calculate_net_worth_per_min(entry)
         label_match_result(entry)
 
-    return render_template('test.html', match_history=posts)
+    record = calculate_win_loss_ratio(posts)
+
+    return render_template('test.html', match_history=posts, record=record)
 
     
 if __name__ == '__main__':

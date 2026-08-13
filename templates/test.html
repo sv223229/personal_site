@@ -11,6 +11,10 @@
         <h1>Account Search Results</h1>
 
         {% if match_history and match_history|length > 0 %}
+        <h2>Win/Loss Record:</h2>
+<p style="color: white; text-align: center; font-size: 1.2em;">
+    Wins: {{ record.wins }} | Losses: {{ record.losses }} | Win/Loss Ratio: {{ record.win_loss_ratio }}
+</p>
         <table>
             <thead>
                 <tr>
@@ -24,7 +28,7 @@
             <tbody>
                 {% for entry in match_history %}
                 <tr>
-                    <td class="match-result">{{ entry.match_result }}</td>
+                    <td class="match-result">{{ entry.player_match_outcome }}</td>
                     <td class="match-ID">{{ entry.match_id }}</td>
                     <td class="match-duration">{{ entry.match_duration_min }}m {{ entry.match_duration_sec }}s</td>
                     <td class="net-worth">{{ entry.net_worth }}</td>
