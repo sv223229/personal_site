@@ -61,7 +61,7 @@ def search():
         steamid = numbers[0]  # take the first number sequence found
 
         session['steamid'] = steamid
-        return redirect(('test'))  # send them to match history
+        return redirect(('match-history'))  # send them to match history
 
     return render_template('form.html')
 
@@ -133,7 +133,7 @@ def label_match_result(entry):
     entry['player_match_outcome'] = 'Win' if entry.get('player_match_outcome') == 1 else 'Loss'
     return entry
 
-@app.route('/test', methods=['GET'])
+@app.route('/match-history', methods=['GET'])
 def match_history():
     steamid = session.get('steamid')
     if not steamid:
