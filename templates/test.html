@@ -27,7 +27,8 @@
             </thead>
             <tbody>
                 {% for entry in match_history %}
-                <tr>
+                {% set match_url = url_for('match_detail', match_id=entry.match_id) %}
+                <tr onclick="window.location.href='{{ match_url }}'" style="cursor: pointer;">
                     <td class="match-result">{{ entry.player_match_outcome }}</td>
                     <td class="match-ID">{{ entry.match_id }}</td>
                     <td class="match-duration">{{ entry.match_duration_min }}m {{ entry.match_duration_sec }}s</td>

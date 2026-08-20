@@ -73,8 +73,7 @@ def home():
     else:
         return 'Failed to fetch posts from API.'
 
-@app.route('/index', methods=['GET'])
-
+@app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
 
@@ -133,6 +132,15 @@ def label_match_result(entry):
     entry['player_match_outcome'] = 'Win' if entry.get('player_match_outcome') == 1 else 'Loss'
     return entry
 
+def process_match_players(match_info):
+    winning_team = match_info['winning_team']
+    duration_s = match_info['duration_s']
+    for player in match_info['players']:
+        player['result'] = 'Win' if player['team'] == winning_team else 'Loss'
+        player['match_duration_s'] = duration_s  # reuse your existing helper
+        calculate_net_worth_per_min(player)
+    return match_info['players']
+
 @app.route('/match-history', methods=['GET'])
 def match_history():
     steamid = session.get('steamid')
@@ -154,6 +162,42 @@ def match_history():
     record = calculate_win_loss_ratio(posts)
 
     return render_template('test.html', match_history=posts, record=record)
+
+def match_result(match_id):
+    url = f'https://api.deadlock-api.com/v1/matches/{match_id}/metadata'
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            print('Successfully fetched posts from API.')
+            return response.json()
+        else:
+            print('Error: failed to fetch posts from API, response status code:', response.status_code)
+            return None
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+        return None
+
+
+
+@app.route('/match_history/<match_id>', methods=['GET'])
+def match_detail(match_id):
+    data = match_result(match_id)
+    if not data:
+        return 'Match not found.'
+
+    match_info = data['match_info']
+    players = process_match_players(match_info)
+    minutes, seconds = divmod(match_info['duration_s'], 60)
+
+    return render_template(
+        'match_detail.html',
+        match_id=match_info['match_id'],
+        duration_min=minutes,
+        duration_sec=seconds,
+        winning_team=match_info['winning_team'],
+        team0_players=[p for p in players if p['team'] == 0],
+        team1_players=[p for p in players if p['team'] == 1]
+    )
 
     
 if __name__ == '__main__':

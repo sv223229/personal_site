@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/CSS/leaderboard.css" rel="stylesheet">
+    <title>Match Details - Deadlock</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Match Details</h1>
+        <p style="color: white; text-align: center; font-size: 1.2em;">
+            Match ID: {{ match_id }} | Duration: {{ duration_min }}m {{ duration_sec }}s | Winner: Team {{ winning_team }}
+        </p>
+
+        <h2>Team 0{% if winning_team == 0 %} — Winner{% endif %}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Hero ID</th>
+                    <th>Result</th>
+                    <th>K</th>
+                    <th>D</th>
+                    <th>A</th>
+                    <th>Last Hits</th>
+                    <th>Denies</th>
+                    <th>Level</th>
+                    <th>Net Worth</th>
+                    <th>Net Worth/Min</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in team0_players %}
+                <tr>
+                    <td>{{ player.hero_id }}</td>
+                    <td class="{{ 'win' if player.result == 'Win' else 'loss' }}">{{ player.result }}</td>
+                    <td>{{ player.kills }}</td>
+                    <td>{{ player.deaths }}</td>
+                    <td>{{ player.assists }}</td>
+                    <td>{{ player.last_hits }}</td>
+                    <td>{{ player.denies }}</td>
+                    <td>{{ player.level }}</td>
+                    <td>{{ player.net_worth }}</td>
+                    <td>{{ player.net_worth_per_min }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Team 1{% if winning_team == 1 %} — Winner{% endif %}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Hero ID</th>
+                    <th>Result</th>
+                    <th>K</th>
+                    <th>D</th>
+                    <th>A</th>
+                    <th>Last Hits</th>
+                    <th>Denies</th>
+                    <th>Level</th>
+                    <th>Net Worth</th>
+                    <th>Net Worth/Min</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in team1_players %}
+                <tr>
+                    <td>{{ player.hero_id }}</td>
+                    <td class="{{ 'win' if player.result == 'Win' else 'loss' }}">{{ player.result }}</td>
+                    <td>{{ player.kills }}</td>
+                    <td>{{ player.deaths }}</td>
+                    <td>{{ player.assists }}</td>
+                    <td>{{ player.last_hits }}</td>
+                    <td>{{ player.denies }}</td>
+                    <td>{{ player.level }}</td>
+                    <td>{{ player.net_worth }}</td>
+                    <td>{{ player.net_worth_per_min }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
