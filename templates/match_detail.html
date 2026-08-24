@@ -13,12 +13,13 @@
             Match ID: {{ match_id }} | Duration: {{ duration_min }}m {{ duration_sec }}s | Winner: Team {{ winning_team }}
         </p>
 
-        <h2>Team 0{% if winning_team == 0 %} — Winner{% endif %}</h2>
+
+        <h2>Hidden
+            {% if winning_team == 0 %} — Winner{% endif %}</h2>
         <table>
             <thead>
                 <tr>
                     <th>Hero ID</th>
-                    <th>Result</th>
                     <th>K</th>
                     <th>D</th>
                     <th>A</th>
@@ -33,7 +34,6 @@
                 {% for player in team0_players %}
                 <tr>
                     <td>{{ player.hero_id }}</td>
-                    <td class="{{ 'win' if player.result == 'Win' else 'loss' }}">{{ player.result }}</td>
                     <td>{{ player.kills }}</td>
                     <td>{{ player.deaths }}</td>
                     <td>{{ player.assists }}</td>
@@ -47,18 +47,18 @@
             </tbody>
         </table>
 
-        <h2>Team 1{% if winning_team == 1 %} — Winner{% endif %}</h2>
+        <h2>Arch
+            {% if winning_team == 1 %} — Winner{% endif %}</h2>
         <table>
             <thead>
                 <tr>
                     <th>Hero ID</th>
-                    <th>Result</th>
-                    <th>K</th>
-                    <th>D</th>
-                    <th>A</th>
+                    <th>Kills</th>
+                    <th>Deaths</th>
+                    <th>Assists</th>
                     <th>Last Hits</th>
                     <th>Denies</th>
-                    <th>Level</th>
+                    <th>Boons</th>
                     <th>Net Worth</th>
                     <th>Net Worth/Min</th>
                 </tr>
@@ -67,7 +67,6 @@
                 {% for player in team1_players %}
                 <tr>
                     <td>{{ player.hero_id }}</td>
-                    <td class="{{ 'win' if player.result == 'Win' else 'loss' }}">{{ player.result }}</td>
                     <td>{{ player.kills }}</td>
                     <td>{{ player.deaths }}</td>
                     <td>{{ player.assists }}</td>

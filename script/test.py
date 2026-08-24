@@ -105,6 +105,10 @@ def fetch_match_history(steamid):
         print('Error:', e)
         return None
 
+def get_team_name(team_id):
+    team_names = {0: 'Amber', 1: 'Sapphire'}
+    return team_names.get(team_id, 'Unknown')
+
 def format_duration(entry):
     minutes, seconds = divmod(entry['match_duration_s'], 60)
     entry['match_duration_min'] = minutes
@@ -137,6 +141,7 @@ def process_match_players(match_info):
     duration_s = match_info['duration_s']
     for player in match_info['players']:
         player['result'] = 'Win' if player['team'] == winning_team else 'Loss'
+        player['team_name'] = get_team_name(player['team'])
         player['match_duration_s'] = duration_s  # reuse your existing helper
         calculate_net_worth_per_min(player)
     return match_info['players']
@@ -195,6 +200,8 @@ def match_detail(match_id):
         duration_min=minutes,
         duration_sec=seconds,
         winning_team=match_info['winning_team'],
+        team0_name=get_team_name(0),
+        team1_name=get_team_name(1),
         team0_players=[p for p in players if p['team'] == 0],
         team1_players=[p for p in players if p['team'] == 1]
     )
