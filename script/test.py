@@ -2,16 +2,21 @@ import requests
 import os
 import re
 from flask import Flask, redirect, render_template
-from flask import Flask, render_template, request, session
+from flask import request, session
 from dotenv import load_dotenv
+from sql_lite import db, NameLookup
 
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
 static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'steam.env'))
 load_dotenv(env_path)
-# steamid = os.getenv("STEAM_ID")
-app.secret_key = os.getenv("SECRET_KEY")
+db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'deadlock.db'))
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
+with app.app_context():
+    db.create_all()
 
 region = "NAmerica"
 
@@ -145,6 +150,11 @@ def process_match_players(match_info):
         player['match_duration_s'] = duration_s  # reuse your existing helper
         calculate_net_worth_per_min(player)
     return match_info['players']
+
+def label_hero_name(entry):
+    hero = NameLookup.query.get(entry.get('hero_id'))
+    entry['hero_name'] = hero.name if hero else 'Unknown'
+    return entry
 
 @app.route('/match-history', methods=['GET'])
 def match_history():
