@@ -1,5 +1,6 @@
 from test import app
 from sql_lite import db, CachedMatch, NameLookup
+from sqlalchemy import inspect
 
 data = [
     {"id": 1, "name": "Infernus"},
@@ -88,18 +89,24 @@ data = [
 
 
 ]
-with app.app_context():
-    # insert a test row
+# with app.app_context():
+#     # insert a test row
     
 
-    for item in data:
-        entry = NameLookup(id=item["id"], name=item["name"])
-        db.session.merge(entry)
-    db.session.commit()
+#     for item in data:
+#         entry = NameLookup(id=item["id"], name=item["name"])
+#         db.session.merge(entry)
+#     db.session.commit()
 with app.app_context():
 
     all_entries = NameLookup.query.all()
     for e in all_entries:
         print(e.id, e.name)
 
-    
+from test import app, db
+
+with app.app_context():
+    inspector = inspect(db.engine)
+    tables = inspector.get_table_names()
+    print("Number of tables:", len(tables))
+    print("Table names:", tables)    

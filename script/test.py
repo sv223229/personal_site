@@ -11,6 +11,7 @@ static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'stat
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'steam.env'))
 load_dotenv(env_path)
+app.secret_key = os.getenv("SECRET_KEY")
 db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'deadlock.db'))
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -141,20 +142,27 @@ def label_match_result(entry):
     entry['player_match_outcome'] = 'Win' if entry.get('player_match_outcome') == 1 else 'Loss'
     return entry
 
+def get_hero_name(hero_id):
+    hero = db.session.get(NameLookup, hero_id)
+    return hero.name if hero else 'Unknown'
+
+
+def label_hero_name(entry):
+    hero = db.session.get(NameLookup, entry.get('id'))
+    entry['hero_name'] = hero.name if hero else 'Unknown'
+    return entry
+
 def process_match_players(match_info):
     winning_team = match_info['winning_team']
     duration_s = match_info['duration_s']
     for player in match_info['players']:
         player['result'] = 'Win' if player['team'] == winning_team else 'Loss'
         player['team_name'] = get_team_name(player['team'])
+        player['hero_name'] = get_hero_name(player['hero_id'])
         player['match_duration_s'] = duration_s  # reuse your existing helper
         calculate_net_worth_per_min(player)
     return match_info['players']
 
-def label_hero_name(entry):
-    hero = NameLookup.query.get(entry.get('hero_id'))
-    entry['hero_name'] = hero.name if hero else 'Unknown'
-    return entry
 
 @app.route('/match-history', methods=['GET'])
 def match_history():
