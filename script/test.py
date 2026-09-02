@@ -159,7 +159,7 @@ def process_match_players(match_info):
         player['result'] = 'Win' if player['team'] == winning_team else 'Loss'
         player['team_name'] = get_team_name(player['team'])
         player['hero_name'] = get_hero_name(player['hero_id'])
-        player['match_duration_s'] = duration_s  # reuse your existing helper
+        player['match_duration_s'] = duration_s 
         calculate_net_worth_per_min(player)
     return match_info['players']
 
