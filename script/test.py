@@ -152,6 +152,12 @@ def label_hero_name(entry):
     entry['hero_name'] = hero.name if hero else 'Unknown'
     return entry
 
+def process_power_up_buffs(player):
+    return [
+        {'type': b.get('type'), 'is_permanent': b.get('is_permanent'), 'value': b.get('value')}
+        for b in player.get('power_up_buffs', [])
+    ]
+
 def process_match_players(match_info):
     winning_team = match_info['winning_team']
     duration_s = match_info['duration_s']
@@ -159,7 +165,8 @@ def process_match_players(match_info):
         player['result'] = 'Win' if player['team'] == winning_team else 'Loss'
         player['team_name'] = get_team_name(player['team'])
         player['hero_name'] = get_hero_name(player['hero_id'])
-        player['match_duration_s'] = duration_s 
+        player['match_duration_s'] = duration_s
+        player['buffs'] = process_power_up_buffs(player)
         calculate_net_worth_per_min(player)
     return match_info['players']
 

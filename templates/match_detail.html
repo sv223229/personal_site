@@ -28,6 +28,7 @@
                     <th>Level</th>
                     <th>Net Worth</th>
                     <th>Net Worth/Min</th>
+                    <th>Buffs</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,6 +43,20 @@
                     <td>{{ player.level }}</td>
                     <td>{{ player.net_worth }}</td>
                     <td>{{ player.net_worth_per_min }}</td>
+                    <td>
+                        {% if player.buffs %}
+                        <details>
+                            <summary>{{ player.buffs|length }} buffs</summary>
+                            <ul>
+                                {% for buff in player.buffs %}
+                                <li>{{ buff.type }}{% if buff.is_permanent %} (permanent){% endif %}: {{ buff.value }}</li>
+                                {% endfor %}
+                            </ul>
+                        </details>
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -61,6 +76,7 @@
                     <th>Boons</th>
                     <th>Net Worth</th>
                     <th>Net Worth/Min</th>
+                    <th>Buffs</th>
                 </tr>
             </thead>
             <tbody>
@@ -75,6 +91,20 @@
                     <td>{{ player.level }}</td>
                     <td>{{ player.net_worth }}</td>
                     <td>{{ player.net_worth_per_min }}</td>
+                   <td>
+                        {% if player.buffs %}
+                        <details>
+                            <summary>{{ player.buffs|length }} buffs</summary>
+                            <ul>
+                                {% for buff in player.buffs %}
+                                <li>{{ buff.type }}{% if buff.is_permanent %} (permanent){% endif %}: {{ buff.value }}</li>
+                                {% endfor %}
+                            </ul>
+                        </details>
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
