@@ -20,8 +20,9 @@ class NameLookup(db.Model):
 class BuffLookup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    status = db.Column(db.String, nullable=True)
-    buff_ammount = db.Column(db.Integer, nullable=True)
+    buff_lvl = db.Column(db.String, nullable=True)
+    buff_type = db.Column(db.String, nullable=True)
+    buff_ammount = db.Column(db.Float, nullable=True)
 
     def __repr__(self):
         return f'<NameLookup {self.id}: {self.name}>'
