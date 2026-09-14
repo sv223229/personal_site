@@ -14,7 +14,7 @@
         </p>
 
 
-        <h2>Hidden
+        <h2>{{ team0_name }}
             {% if winning_team == 0 %} — Winner{% endif %}</h2>
         <table>
             <thead>
@@ -49,7 +49,10 @@
                             <summary>{{ player.buffs|length }} buffs</summary>
                             <ul>
                                 {% for buff in player.buffs %}
-                                <li>{{ buff.type }}{% if buff.is_permanent %} (permanent){% endif %}: {{ buff.value }}</li>
+                                <li>
+                                    {{ buff.display_name }}{% if buff.buff_lvl %} Lv{{ buff.buff_lvl }}{% endif %}{% if buff.is_permanent %} (permanent){% endif %}:
+                                    {% if buff.per_stack_amount %}{{ buff.stack_count }} * {{ buff.per_stack_amount }} = {{ buff.stack_count * buff.per_stack_amount }}{% else %}{{ buff.stack_count }}{% endif %}
+                                </li>
                                 {% endfor %}
                             </ul>
                         </details>
@@ -62,7 +65,7 @@
             </tbody>
         </table>
 
-        <h2>Arch
+        <h2>{{ team1_name }}
             {% if winning_team == 1 %} — Winner{% endif %}</h2>
         <table>
             <thead>
@@ -73,7 +76,7 @@
                     <th>Assists</th>
                     <th>Last Hits</th>
                     <th>Denies</th>
-                    <th>Boons</th>
+                    <th>Level</th>
                     <th>Net Worth</th>
                     <th>Net Worth/Min</th>
                     <th>Buffs</th>
@@ -97,7 +100,10 @@
                             <summary>{{ player.buffs|length }} buffs</summary>
                             <ul>
                                 {% for buff in player.buffs %}
-                                <li>{{ buff.type }}{% if buff.is_permanent %} (permanent){% endif %}: {{ buff.value }}</li>
+                                <li>
+                                    {{ buff.display_name }}{% if buff.buff_lvl %} Lv{{ buff.buff_lvl }}{% endif %}{% if buff.is_permanent %} (permanent){% endif %}:
+                                    {% if buff.per_stack_amount %}{{ buff.stack_count }} * {{ buff.per_stack_amount }} = {{ buff.stack_count * buff.per_stack_amount }}{% else %}{{ buff.stack_count }}{% endif %}
+                                </li>
                                 {% endfor %}
                             </ul>
                         </details>

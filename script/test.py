@@ -4,7 +4,7 @@ import re
 from flask import Flask, redirect, render_template
 from flask import request, session
 from dotenv import load_dotenv
-from sql_lite import db, NameLookup
+from sql_lite import db, NameLookup, BuffLookup
 
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
 static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
@@ -20,6 +20,7 @@ with app.app_context():
     db.create_all()
 
 region = "NAmerica"
+
 
 
 def fetch_leaderboard(region):
@@ -152,11 +153,63 @@ def label_hero_name(entry):
     entry['hero_name'] = hero.name if hero else 'Unknown'
     return entry
 
+
+PREFIX_TO_NAME = {
+    'firerate': 'fire_rate',
+    'ammo': 'max_ammo',
+    'hp': 'max_health',
+    'cd': 'cooldown_reduction',
+    'wp': 'weapon_damage',  
+    'spirit': 'spirit_power',
+}
+
+def parse_buff_type(type_string):
+    match = re.match(r'^([a-z]+)_permanent_pickup(?:_lv(\d+))?$', type_string)
+
+    if not match:
+        return None, 1
+
+    prefix, level = match.groups()
+
+    name = PREFIX_TO_NAME.get(prefix)
+
+    if level is None:
+        level = 1
+    else:
+        level = int(level)
+
+    return name, level
+
+
+def get_buff_info(type_string):
+    name, level = parse_buff_type(type_string)
+    return BuffLookup.query.filter_by(name=name, buff_lvl=level).first()
+
 def process_power_up_buffs(player):
-    return [
-        {'type': b.get('type'), 'is_permanent': b.get('is_permanent'), 'value': b.get('value')}
-        for b in player.get('power_up_buffs', [])
-    ]
+    result = []
+    for b in player.get('power_up_buffs', []):
+        raw_type = b.get('type')
+        buff_info = get_buff_info(raw_type)
+
+        result.append({
+            'display_name': buff_info.name if buff_info else raw_type,
+            'buff_lvl': buff_info.buff_lvl if buff_info else None,
+            'buff_color': buff_info.buff_type if buff_info else None,
+            'stack_count': b.get('value'),
+            'per_stack_amount': buff_info.buff_ammount if buff_info else None,
+            'is_permanent': b.get('is_permanent'),
+        })
+    return result
+
+def calculate_total_buffs(player):
+    buffs = process_power_up_buffs(player)
+    totals = {}
+    for buff in buffs:
+        if buff['per_stack_amount'] is None:
+            continue
+        total_for_this_buff = buff['stack_count'] * buff['per_stack_amount']
+        totals[buff['display_name']] = totals.get(buff['display_name'], 0) + total_for_this_buff
+    return totals
 
 def process_match_players(match_info):
     winning_team = match_info['winning_team']
