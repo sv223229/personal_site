@@ -36,6 +36,15 @@ def calculate_total_buffs(player):
         totals[buff['display_name']] = totals.get(buff['display_name'], 0) + total_for_this_buff
 
     return totals
+
+def calculate_total_gold_death_loss(player):
+    """
+    gold_death_loss is cumulative, recorded at each snapshot — so the max
+    value across all snapshots is the final total for the match.
+    """
+    stats = player.get('stats', [])
+    values = [s.get('gold_death_loss', 0) for s in stats if s.get('gold_death_loss') is not None]
+    return max(values) if values else 0
 from test import app, match_result, process_power_up_buffs
 
 with app.app_context():
@@ -43,4 +52,5 @@ with app.app_context():
     match_info = data['match_info']
     for player in match_info['players']:
         totals = calculate_total_buffs(player)
-        print(player.get('hero_id'), totals)
+        gold_death_loss = calculate_total_gold_death_loss(player)
+        print(f"Player {player.get('hero_name')}: Total Buffs: {totals}, Gold Death Loss: {gold_death_loss}")

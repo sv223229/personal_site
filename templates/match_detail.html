@@ -28,6 +28,7 @@
                     <th>Level</th>
                     <th>Net Worth</th>
                     <th>Net Worth/Min</th>
+                    <th>Gold Death Loss</th>
                     <th>Buffs</th>
                 </tr>
             </thead>
@@ -43,6 +44,7 @@
                     <td>{{ player.level }}</td>
                     <td>{{ player.net_worth }}</td>
                     <td>{{ player.net_worth_per_min }}</td>
+                    <td>{{ player.gold_death_loss }}</td>
                     <td>
                         {% if player.buffs %}
                         <details>
@@ -79,6 +81,7 @@
                     <th>Level</th>
                     <th>Net Worth</th>
                     <th>Net Worth/Min</th>
+                    <th>Gold Death Loss</th>
                     <th>Buffs</th>
                 </tr>
             </thead>
@@ -94,6 +97,7 @@
                     <td>{{ player.level }}</td>
                     <td>{{ player.net_worth }}</td>
                     <td>{{ player.net_worth_per_min }}</td>
+                    <td>{{ player.gold_death_loss }}</td>
                    <td>
                         {% if player.buffs %}
                         <details>

@@ -101,9 +101,13 @@ def fetch_match_history(steamid):
     try:
         response = requests.get(url)
         if response.status_code == 200:
-            print('Successfully fetched posts from API.')
             data = response.json()
-            filtered_output = [item for item in data if item['match_mode'] == 4]
+
+            # debug: every match_mode/game_mode combo actually present
+            print("Raw match_mode/game_mode values:", {(item.get('match_mode'), item.get('game_mode')) for item in data})
+
+            filtered_output = [item for item in data if item.get('match_mode') == 4 and item.get('game_mode') == 1]
+            print(f"Kept {len(filtered_output)} of {len(data)} matches after filtering.")
             return filtered_output
         else:
             print('Error: failed to fetch posts from API, response status code:', response.status_code)
@@ -127,20 +131,18 @@ def calculate_net_worth_per_min(entry):
     entry['net_worth_per_min'] = round(entry['net_worth'] / total_minutes, 1) if total_minutes > 0 else 0
     return entry
 
-def calculate_win_loss_ratio(entry):
-    wins = sum(1 for entry in entry if entry.get('player_match_outcome') == 'Win')
-    losses = sum(1 for entry in entry if entry.get('player_match_outcome') == 'Loss')
-    total_matches = wins + losses
-
+def calculate_win_loss_ratio(matches):
+    wins = sum(1 for m in matches if m.get('result') == 'Win')
+    losses = sum(1 for m in matches if m.get('result') == 'Loss')
+    total = wins + losses
     return {
         'wins': wins,
         'losses': losses,
-        'win_loss_ratio': round((wins / total_matches)*100, 2) if total_matches > 0 else 0
+        'win_loss_ratio': round(wins / total * 100, 2) if total > 0 else 0
     }
 
-
 def label_match_result(entry):
-    entry['player_match_outcome'] = 'Win' if entry.get('player_match_outcome') == 1 else 'Loss'
+    entry['result'] = 'Win' if entry.get('match_result') == entry.get('player_team') else 'Loss'
     return entry
 
 def get_hero_name(hero_id):
@@ -201,6 +203,11 @@ def process_power_up_buffs(player):
         })
     return result
 
+def calculate_total_gold_death_loss(player):
+    stats = player.get('stats', [])
+    values = [s.get('gold_death_loss', 0) for s in stats if s.get('gold_death_loss') is not None]
+    return max(values) if values else 0
+
 def calculate_total_buffs(player):
     buffs = process_power_up_buffs(player)
     totals = {}
@@ -211,6 +218,8 @@ def calculate_total_buffs(player):
         totals[buff['display_name']] = totals.get(buff['display_name'], 0) + total_for_this_buff
     return totals
 
+
+
 def process_match_players(match_info):
     winning_team = match_info['winning_team']
     duration_s = match_info['duration_s']
@@ -220,6 +229,7 @@ def process_match_players(match_info):
         player['hero_name'] = get_hero_name(player['hero_id'])
         player['match_duration_s'] = duration_s
         player['buffs'] = process_power_up_buffs(player)
+        player['gold_death_loss'] = calculate_total_gold_death_loss(player)
         calculate_net_worth_per_min(player)
     return match_info['players']
 
