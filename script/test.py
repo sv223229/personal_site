@@ -1,10 +1,14 @@
 import requests
 import os
 import re
+import time
+
 from flask import Flask, redirect, render_template
 from flask import request, session
 from dotenv import load_dotenv
 from sql_lite import db, NameLookup, BuffLookup
+from patch import fetch_patch, steam_to_html
+
 
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
 static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
@@ -52,62 +56,21 @@ def fetch_account(steamid):
         return None
 
 
-@app.route('/search', methods=['GET', 'POST'])
-def search():
-    if request.method == 'POST':
-        raw_input = request.form.get('steamid')
 
-        if not raw_input:
-            return 'Please enter a Steam ID or profile URL.'
-
-        numbers = re.findall(r'\d+', raw_input)
-
-        if not numbers:
-            return 'Please enter a valid numeric Steam ID.'
-
-        steamid = numbers[0]  # take the first number sequence found
-
-        session['steamid'] = steamid
-        return redirect(('match-history'))  # send them to match history
-
-    return render_template('form.html')
-
-@app.route('/leaderboard', methods=['GET'])
-def home():
-    posts = fetch_leaderboard(region)
-    if posts:
-        return render_template('leaderboard.html', leader_board=posts['entries'])
-    else:
-        return 'Failed to fetch posts from API.'
-
-@app.route('/', methods=['GET'])
-def index():
-    return render_template('index.html')
-
-@app.route('/steam', methods=['GET'])
-
-def account():
-    steamid = session.get('steamid')
-    if not steamid:
-        return 'Steam ID is required.'
-    posts = fetch_account(steamid)
-    if posts:
-        return render_template('steam.html', accounts=posts)
-    else:
-        return 'Failed to fetch account from API.'
-
-def fetch_match_history(steamid):
+def fetch_match_history(steamid, days=30):
     url = f'https://api.deadlock-api.com/v1/players/{steamid}/match-history'
     try:
         response = requests.get(url)
         if response.status_code == 200:
+            print('Successfully fetched posts from API.')
             data = response.json()
-
-            # debug: every match_mode/game_mode combo actually present
-            print("Raw match_mode/game_mode values:", {(item.get('match_mode'), item.get('game_mode')) for item in data})
-
-            filtered_output = [item for item in data if item.get('match_mode') == 4 and item.get('game_mode') == 1]
-            print(f"Kept {len(filtered_output)} of {len(data)} matches after filtering.")
+            cutoff = time.time() - (days * 86400)
+            filtered_output = [
+                item for item in data
+                if item.get('match_mode') == 4
+                and item.get('game_mode') == 1
+                and item.get('start_time', 0) >= cutoff
+            ]
             return filtered_output
         else:
             print('Error: failed to fetch posts from API, response status code:', response.status_code)
@@ -218,8 +181,6 @@ def calculate_total_buffs(player):
         totals[buff['display_name']] = totals.get(buff['display_name'], 0) + total_for_this_buff
     return totals
 
-
-
 def process_match_players(match_info):
     winning_team = match_info['winning_team']
     duration_s = match_info['duration_s']
@@ -233,6 +194,68 @@ def process_match_players(match_info):
         calculate_net_worth_per_min(player)
     return match_info['players']
 
+def match_result(match_id):
+    url = f'https://api.deadlock-api.com/v1/matches/{match_id}/metadata'
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            print('Successfully fetched posts from API.')
+            return response.json()
+        else:
+            print('Error: failed to fetch posts from API, response status code:', response.status_code)
+            return None
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+        return None
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'POST':
+        raw_input = request.form.get('steamid')
+
+        if not raw_input:
+            return 'Please enter a Steam ID or profile URL.'
+
+        numbers = re.findall(r'\d+', raw_input)
+
+        if not numbers:
+            return 'Please enter a valid numeric Steam ID.'
+
+        steamid = numbers[0]  # take the first number sequence found
+
+        session['steamid'] = steamid
+        return redirect(('match-history'))  # send them to match history
+
+    return render_template('form.html')
+
+@app.route('/leaderboard', methods=['GET'])
+def home():
+    posts = fetch_leaderboard(region)
+    if posts:
+        return render_template('leaderboard.html', leader_board=posts['entries'])
+    else:
+        return 'Failed to fetch posts from API.'
+
+
+@app.route('/steam', methods=['GET'])
+def account():
+    steamid = session.get('steamid')
+    if not steamid:
+        return 'Steam ID is required.'
+    posts = fetch_account(steamid)
+    if posts:
+        return render_template('steam.html', accounts=posts)
+    else:
+        return 'Failed to fetch account from API.'
+
+@app.route('/')
+def patch():
+    data = fetch_patch()
+    if data is None:
+        return "Error fetching patch data."
+    body = data["events"][0]["announcement_body"]["body"]
+    body = steam_to_html(body)
+    return render_template('patch.html', body=body)
 
 @app.route('/match-history', methods=['GET'])
 def match_history():
@@ -255,21 +278,6 @@ def match_history():
     record = calculate_win_loss_ratio(posts)
 
     return render_template('test.html', match_history=posts, record=record)
-
-def match_result(match_id):
-    url = f'https://api.deadlock-api.com/v1/matches/{match_id}/metadata'
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            print('Successfully fetched posts from API.')
-            return response.json()
-        else:
-            print('Error: failed to fetch posts from API, response status code:', response.status_code)
-            return None
-    except requests.exceptions.RequestException as e:
-        print('Error:', e)
-        return None
-
 
 
 @app.route('/match_history/<match_id>', methods=['GET'])
