@@ -18,7 +18,32 @@ def fetch_patch():
             print('Error:', e)
             return None
 
-# print(fetch_patch())
+def parse_patch_notes(text):
+    raw_segments = re.findall(r'\[p\](.*?)\[/p\]', text, re.DOTALL)
+
+    sections = []
+    current_bullets = None
+
+    for raw in raw_segments:
+        raw = raw.strip()
+        if not raw:
+            continue  # skip empty spacer paragraphs
+
+        is_header = raw.startswith('[b]') and raw.endswith('[/b]')
+        clean = raw.replace('[b]', '').replace('[/b]', '').replace('\\[', '[')
+
+        if is_header:
+            sections.append({'header': clean, 'bullets': []})
+            current_bullets = sections[-1]['bullets']
+        else:
+            if clean.startswith('- '):
+                clean = clean[2:]
+            if current_bullets is None:
+                sections.append({'header': None, 'bullets': []})
+                current_bullets = sections[-1]['bullets']
+            current_bullets.append(clean)
+
+    return sections
 
 
 def steam_to_html(text):
@@ -27,5 +52,14 @@ def steam_to_html(text):
     text = text.replace("[/p]", "</p>")
     text = text.replace("[b]", "<strong>")
     text = text.replace("[/b]", "</strong>")
-
+    text = text.replace("\\[", "[")
     return text
+
+data = fetch_patch()
+headline = data["events"][0]["announcement_body"]["headline"]
+
+match = re.search(r'\d{2}-\d{2}-\d{4}', headline)
+
+if match:
+    date = match.group()
+    print(date)

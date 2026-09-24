@@ -7,7 +7,7 @@ from flask import Flask, redirect, render_template
 from flask import request, session
 from dotenv import load_dotenv
 from sql_lite import db, NameLookup, BuffLookup
-from patch import fetch_patch, steam_to_html
+from patch import fetch_patch, parse_patch_notes, steam_to_html
 
 
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
@@ -57,7 +57,7 @@ def fetch_account(steamid):
 
 
 
-def fetch_match_history(steamid, days=30):
+def fetch_match_history(steamid, days=60):
     url = f'https://api.deadlock-api.com/v1/players/{steamid}/match-history'
     try:
         response = requests.get(url)
@@ -254,8 +254,14 @@ def patch():
     if data is None:
         return "Error fetching patch data."
     body = data["events"][0]["announcement_body"]["body"]
-    body = steam_to_html(body)
-    return render_template('patch.html', body=body)
+    # body = steam_to_html(body)
+    sections = parse_patch_notes(body)
+    headline = data["events"][0]["announcement_body"]["headline"]
+    match = re.search(r'\d{2}-\d{2}-\d{4}', headline)
+    date = match.group() if match else ""
+
+    sections = parse_patch_notes(body)
+    return render_template('patch.html', sections=sections, date=date)
 
 @app.route('/match-history', methods=['GET'])
 def match_history():

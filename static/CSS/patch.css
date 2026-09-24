@@ -1,0 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400..900&family=IM+Fell+Double+Pica:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
+*,*:before,*:after {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+.sr-only {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+
+}
+
+header {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;             
+  padding: 1.5em;
+  border: 1px black solid;
+  font-family: 'Cinzel';
+}
+
+
+body {
+  background-color: #080808;
+  /* background-image:
+    linear-gradient(rgba(8,8,8,0.6), rgba(8,8,8,0.6)),
+    url('../img/caver.jpg'); */
+  background-position: center center;
+  background-size: cover; 
+  background-color: #080808;
+  font-size: 15px;
+  font-family: 'Im Fell Double Pica', 'Cinzel', serif;
+  
+}
+
+h1,h2,h3,h4,a {
+  font-weight: normal;
+  padding: 0.6em;
+  color: white;
+}
+
+h2 {font-size:1.25em;}
+
+h3 {font-size:1.1em;}
+
+p {
+  margin-bottom: 1.8em;
+  line-height: 1.8em;
+  color: white;
+  font-family: 'Im Fell Double Pica';
+}
+
+header,nav,main,aside,footer {
+  padding: 1.5em;
+  border: 1px white solid;
+  font-size: 20px;
+}
+
+header {
+  text-align: center;
+}
+
+footer {
+  text-align: center;
+} 
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: Rebeccapurple;
+  display: grid;
+  width: 100%;
+  min-height: 100vh;
+  grid-template-columns:
+   1fr       2fr       1fr;
+  grid-template-areas:
+  "heady     heady     heady"
+  "navvy     navvy     navvy"
+  "aside1    mainy     aside2"
+  "aside1    mainy     aside2"
+  "aside1    mainy     aside2"
+  "footy     footy     footy";
+}
+
+header {grid-area: heady; background:rgba(34, 35, 48, 0.93);}
+nav {grid-area: navvy; background: linear-gradient(
+    90deg,
+    var(--gradient-showcase-header-left) 0%,
+    var(--color-showcase-header) 100%
+  );}
+main {grid-area: mainy; background: rgba(34, 35, 48, 0.93); max-height: 100%;}
+#aside1 {grid-area: aside1; background-color: rgba(0, 0, 0, 0.3);
+backdrop-filter: blur(20px);}
+
+#aside2 {grid-area: aside2; background-color: rgba(0, 0, 0, 0.3);
+backdrop-filter: blur(20px);}
+
+footer {grid-area: footy; background: lightsalmon;}
+
+nav ul {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-around;
+}
+
+nav ul li {
+  list-style: none
+}
+
+@media screen
+  and (min-width: 641px)
+  and (max-width: 900px)  {
+      .container {
+      grid-template-columns:
+        1fr 1fr;
+      grid-template-areas:
+        "heady heady"
+        "navvy navvy"
+        "mainy mainy"
+        "aside1 aside2"
+        "footy footy";
+      }
+}/* end tablet media query */
+
+@media screen
+      and (max-width: 640px)  {
+    .container {
+    grid-template-columns:
+      1fr;
+    grid-template-areas:
+      "heady"
+      "navvy"
+      "mainy"
+      "aside1"
+      "aside2"
+      "footy";
+      width: 100%;
+    }
+
+    nav ul {
+      flex-flow: column nowrap;
+      text-align: center;
+    }
+    nav ul li a {
+      display: block;
+      padding: 10px 5px;
+      margin: 5px;
+      border: 1px black solid;
+      background: red;
+
+      }
+} 
+.body_header_text {
+  background: #013a63;
+  border: 2px solid rgba(0,90,255,0.35);
+  border-radius: 8px 8px 0 0; 
+  padding: 1rem;
+  margin: 1rem auto 0; 
+  max-width: 900px;
+}
+
+.body_body_text {
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255,215,0,0.3);
+  border-top: none;              
+  border-radius: 0 0 8px 8px;    
+  padding: 0.9rem 1rem;
+  margin: 0 auto 1rem;           
+  max-width: 900px;
+  box-sizing: border-box;
+}
+
+.inner_body_text {
+  background: rgb(34, 35, 48); 
+  border: 1px solid rgba(0,128,128,0.25);
+  border-radius: 4px;
+  padding: 0.6rem;
+  margin: 0.4rem 0;
+  font-size: 0.95rem;
+}
+.flex_container {
+  display: flex;
+  justify-content: column;
+  /* gap: 2rem; */
+}
+.flex_container div {
+  min-width: 100px;
+}
+.inner_body_text p {
+  margin-bottom: 0;
+  /* padding-left: 27rem; */
+}
+#quote {
+  font-style: italic;
+  font-size: 3rem;
+  color: yellow;
+}
+cite {
+  font-size: 2rem;
+  color: yellow;
+}
