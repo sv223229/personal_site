@@ -19,7 +19,6 @@
   </header>
   <nav aria-labelledby="main menu">
     <ul>
-      <li><a href="leaderboard.html"><span aria-hidden="true">LeaderBoard</span></a></li>
       <li><a href="{{ url_for('search') }}"><span aria-hidden="true">Steam</span></a></li>
       <li><a href="semantic_outline.html"><span aria-hidden="true">semantic</span></a></li>
       <li><a href="home_page.html"><span aria-hidden="true">Home Page</span></a></li>
@@ -28,23 +27,23 @@
   </nav>
   <main>
 
-            {% for section in sections %}
-                <div class="body_header_text">
-                {% if section.header %}
-                    <h2>{{ section.header }}</h2>
-                </div>
-            {% endif %}
+           {% for section in sections %}
+              {% if section.header %}<h2>{{ section.header }}</h2>{% endif %}
 
-            <div class="inner_body_text">
-                <div class="flex_container">
-                    <div>
-                        {% for bullet in section.bullets %}
-                            <p>{{ bullet }}</p>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
+              {% for img in section.images %}
+                  <img src="{{ img }}" alt="" style="max-width: 100%;">
+              {% endfor %}
+
+              {% for bullet in section.bullets %}
+              <div class="inner_body_text">
+                  <div class="flex_container">
+                      <div>
+                          <p>{{ bullet }}</p>
+                      </div>
+                  </div>
+              </div>
+              {% endfor %}
+          {% endfor %}
 
   </main>
   <aside id="aside1">

@@ -18,73 +18,73 @@ def fetch_patch():
             print('Error:', e)
             return None
 
-def clean_bbcode(text):
-    # Images: drop entirely — banner graphics aren't useful as plain text
-    text = re.sub(r'\[img\].*?\[/img\]', '', text, flags=re.DOTALL)
+CLAN_IMAGE_BASE = 'https://clan.fastly.steamstatic.com/images'
 
-    # [url=href]label[/url] -> "label (href)", collapsing to just the URL
-    
+IMG_PATTERN = re.compile(
+    r'\[img(?:\s+src\s*=\s*["\']([^"\']*)["\'])?\s*\](.*?)\[/img\]',
+    re.DOTALL | re.IGNORECASE,
+)
+
+def extract_images(text):
+    urls = []
+    for m in IMG_PATTERN.finditer(text):
+        url = (m.group(1) or m.group(2)).strip()
+        url = url.replace('{STEAM_CLAN_LOC_IMAGE}', CLAN_IMAGE_BASE).replace('{STEAM_CLAN_IMAGE}', CLAN_IMAGE_BASE)
+        if url:
+            urls.append(url)
+    return urls
+
+def clean_bbcode(text):
+    text = IMG_PATTERN.sub('', text)
+
     def _url_repl(m):
         href, label = m.group(1), m.group(2).strip()
-        if not label or label == href:
-            return href
-        return f'{label} ({href})'
+        return href if (not label or label == href) else f'{label} ({href})'
     text = re.sub(r'\[url=([^\]]+)\](.*?)\[/url\]', _url_repl, text, flags=re.DOTALL)
-    text = re.sub(r'\[url\](.*?)\[/url\]', r'\1', text, flags=re.DOTALL)  # bare [url]href[/url]
+    text = re.sub(r'\[url\](.*?)\[/url\]', r'\1', text, flags=re.DOTALL)
 
-    # Inline formatting — keep the text, drop the markup
     for tag in ['b', 'i', 'u', 'strike']:
         text = text.replace(f'[{tag}]', '').replace(f'[/{tag}]', '')
 
-    # Escaped literal brackets, e.g. \[ General ]
     text = text.replace('\\[', '[').replace('\\]', ']')
-
     return text.strip()
 
-
 def parse_patch_notes(text):
-    # Some posts wrap paragraphs in [p]...[/p] (patch notes);
     if '[p]' in text:
         raw_segments = re.findall(r'\[p\](.*?)\[/p\]', text, re.DOTALL)
     else:
         raw_segments = re.split(r'\n\s*\n+', text.strip())
 
     sections = []
-    current_bullets = None
+
+    def current_section():
+        if not sections:
+            sections.append({'header': None, 'bullets': [], 'images': []})
+        return sections[-1]
 
     for raw in raw_segments:
         raw = raw.strip()
         if not raw:
-            continue  # skip empty/spacer paragraphs
+            continue
 
+        images = extract_images(raw)   # must run BEFORE clean_bbcode strips the tags
         is_header = raw.startswith('[b]') and raw.endswith('[/b]')
         clean = clean_bbcode(raw)
 
-        if not clean:
-            continue  # nothing left after stripping tags (e.g. a lone image)
+        if is_header and clean:
+            if clean.startswith('- '):
+                clean = clean[2:]
+            sections.append({'header': clean, 'bullets': [], 'images': images})
+            continue
 
-        if clean.startswith('- '):
-            clean = clean[2:]
-
-        if is_header:
-            sections.append({'header': clean, 'bullets': []})
-            current_bullets = sections[-1]['bullets']
-        else:
-            if current_bullets is None:
-                sections.append({'header': None, 'bullets': []})
-                current_bullets = sections[-1]['bullets']
-            current_bullets.append(clean)
+        if images:
+            current_section()['images'].extend(images)
+        if clean:
+            if clean.startswith('- '):
+                clean = clean[2:]
+            current_section()['bullets'].append(clean)
 
     return sections
-
-def steam_to_html(text):
-    text = text.replace("[p][/p]", "")
-    text = text.replace("[p]", "<p>")
-    text = text.replace("[/p]", "</p>")
-    text = text.replace("[b]", "<strong>")
-    text = text.replace("[/b]", "</strong>")
-    text = text.replace("\\[", "[")
-    return text
 
 data = fetch_patch()
 

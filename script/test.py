@@ -7,7 +7,7 @@ from flask import Flask, redirect, render_template
 from flask import request, session
 from dotenv import load_dotenv
 from sql_lite import db, NameLookup, BuffLookup
-from patch import fetch_patch, parse_patch_notes, steam_to_html
+from patch import fetch_patch, parse_patch_notes
 
 
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
@@ -253,14 +253,12 @@ def patch():
     data = fetch_patch()
     if data is None:
         return "Error fetching patch data."
-    body = data["events"][0]["announcement_body"]["body"]
-    # body = steam_to_html(body)
-    sections = parse_patch_notes(body)
-    headline = data["events"][0]["announcement_body"]["headline"]
-    match = re.search(r'\d{2}-\d{2}-\d{4}', headline)
+
+    event = data["events"][0]["announcement_body"]
+    sections = parse_patch_notes(event["body"])
+    match = re.search(r'\d{2}-\d{2}-\d{4}', event["headline"])
     date = match.group() if match else ""
 
-    sections = parse_patch_notes(body)
     return render_template('patch.html', sections=sections, date=date)
 
 @app.route('/match-history', methods=['GET'])
