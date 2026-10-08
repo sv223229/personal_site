@@ -119,9 +119,10 @@ data = [
 #     db.session.commit()
 with app.app_context():
 
-    all_entries = BuffLookup.query.all()
+    all_entries = NameLookup.query.all()
     for e in all_entries:
-        print(e.id, e.name, e.buff_lvl, e.buff_type, e.buff_ammount)
+        print(e.id, e.name)
+        # print(e.id, e.name, e.buff_lvl, e.buff_type, e.buff_ammount)
 
 # with app.app_context():
 #     inspector = inspect(db.engine)
@@ -131,3 +132,35 @@ with app.app_context():
 # with app.app_context():
 #     BuffLookup.__table__.drop(db.engine)
 #     db.create_all()
+# new_rows = [
+#     {"id": 18, "name": "bullet_resist", "buff_lvl": "1", "buff_type": "green",  "buff_ammount": 0.5},
+#     {"id": 19, "name": "bullet_resist", "buff_lvl": "2", "buff_type": "green",  "buff_ammount": 0.75},
+#     {"id": 20, "name": "bullet_resist", "buff_lvl": "3", "buff_type": "green",  "buff_ammount": 1.0},
+#     {"id": 21, "name": "spirit_resist", "buff_lvl": "1", "buff_type": "green",  "buff_ammount": 0.5},
+#     {"id": 22, "name": "spirit_resist", "buff_lvl": "2", "buff_type": "green",  "buff_ammount": 0.75},
+#     {"id": 23, "name": "spirit_resist", "buff_lvl": "3", "buff_type": "green",  "buff_ammount": 1.0},
+#     {"id": 24, "name": "move_speed",    "buff_lvl": "1", "buff_type": "green",  "buff_ammount": 0.1},
+#     {"id": 25, "name": "move_speed",    "buff_lvl": "2", "buff_type": "green",  "buff_ammount": 0.2},
+#     {"id": 26, "name": "move_speed",    "buff_lvl": "3", "buff_type": "green",  "buff_ammount": 0.3},
+#     {"id": 27, "name": "ability_range", "buff_lvl": "1", "buff_type": "purple", "buff_ammount": 0.25},
+#     {"id": 28, "name": "ability_range", "buff_lvl": "2", "buff_type": "purple", "buff_ammount": 0.5},
+#     {"id": 29, "name": "ability_range", "buff_lvl": "3", "buff_type": "purple", "buff_ammount": 0.75},
+# ]
+
+# with app.app_context():
+#     for item in new_rows:
+#         db.session.merge(BuffLookup(**item))
+#     db.session.commit()
+#     print("Total rows:", BuffLookup.query.count())
+# new_heroes = [
+#     {"id": 83, "name": None},
+#     {"id": 85, "name": None},
+#     {"id": 86, "name": None},
+#     {"id": 87, "name": None},
+    
+# ]
+
+# with app.app_context():
+#     for item in new_heroes:
+#         db.session.merge(NameLookup(**item))
+#     db.session.commit()

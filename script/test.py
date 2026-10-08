@@ -126,6 +126,10 @@ PREFIX_TO_NAME = {
     'cd': 'cooldown_reduction',
     'wp': 'weapon_damage',  
     'spirit': 'spirit_power',
+    'bulletresist': 'bullet_resist',
+    'speed': 'movement_speed',
+    'spiritresist': 'spirit_resist',
+    'range': 'ability_range',
 }
 
 def parse_buff_type(type_string):
